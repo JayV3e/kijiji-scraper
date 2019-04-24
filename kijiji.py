@@ -56,7 +56,7 @@ def check_if_new_apts(urls):
                 ad_id = url.split('/')[-1]
                 print(ad_id)
                 if ad_id in last_known_id:
-                    break
+                    pass
                 try:
                     #TODO ca donne une list
                     postalcode_raw = BeautifulSoup(requests.get(url).text, "html.parser").findAll('span',{'itemprop': 'address'})[0].text
