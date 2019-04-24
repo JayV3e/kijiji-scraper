@@ -96,13 +96,13 @@ def format_html(apts):
 
 def send_email(html):
     me = "recherche.kijiji.mautadine@gmail.com"
-    you = ["jerome.verdoni@gmail.com","perreaultmj@hotmail.com"]
+    #you = ["jerome.verdoni@gmail.com","perreaultmj@hotmail.com"]
     password = os.environ['KIJIJI_PASSWORD']
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "Des nouvelles annonces kijiji sont sorties"
     message["From"] = me
-    message["To"] = ','.join(you)
+    message["To"] = "jerome.verdoni@gmail.com"
 
     # Turn these into plain/html MIMEText objects
     part2 = MIMEText(html, "html", 'utf-8')
@@ -124,7 +124,11 @@ def send_email(html):
 if __name__ == "__main__":
     print(datetime.datetime.now())
     apts = check_if_new_apts(urls)
+    print(apts)
     if apts:
+        print('theres apts')
         apts_html = format_html(apts)
+        print(apts_html)
         send_email(apts_html)
+        print('after email')
 
