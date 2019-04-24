@@ -32,6 +32,7 @@ class Apts:
 
 def check_if_new_apts(urls):
     all_apts = {}
+    path_root ='/root/kijiji/'
 
     for url in urls:
         quartier = url[0]
@@ -40,8 +41,8 @@ def check_if_new_apts(urls):
         soup = BeautifulSoup(response.text, "html.parser")
         divs = soup.findAll('div')
         apts = []
-
-        with open(quartier,'r') as f:
+        path = path_root + quartier
+        with open(path,'r') as f:
             last_known_id = f.readlines()[-1][:-1]
 
         for div in reversed(divs):
@@ -71,7 +72,7 @@ def check_if_new_apts(urls):
         
         print('Done : ', quartier)
         if len(apts) > 1:
-            with open(quartier,'w') as f:
+            with open(path,'w') as f:
                 try:
                     f.write(apts[0].ad_id + '\n')
                 except IOError:
