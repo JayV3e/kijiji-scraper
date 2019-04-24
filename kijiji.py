@@ -44,7 +44,7 @@ def check_if_new_apts(urls):
         path = path_root + quartier
         with open(path,'r') as f:
             last_known_id = f.readlines()[-1][:-1]
-
+        print('last known :',last_known_id)
         for div in reversed(divs):
             if div.has_attr('data-ad-id'):
                 #skip les pubs
@@ -54,6 +54,7 @@ def check_if_new_apts(urls):
                 price = div.findAll('div',class_="price")[0].text
                 url = "http://www.kijiji.ca" + div.find('a')['href']
                 ad_id = url.split('/')[-1]
+                print(ad_id)
                 if ad_id in last_known_id:
                     break
                 try:
@@ -101,7 +102,7 @@ def send_email(html):
     message = MIMEMultipart("alternative")
     message["Subject"] = "Des nouvelles annonces kijiji sont sorties"
     message["From"] = me
-    message["To"] = you
+    message["To"] = ','.join(you)
 
     # Turn these into plain/html MIMEText objects
     part2 = MIMEText(html, "html", 'utf-8')
