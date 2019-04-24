@@ -7,12 +7,14 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-
+import datetime
 
 urls = [('mile-end',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/mile-end/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1100"),
-        #('plateau',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/plateau/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1100"),
-        #('outremont',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/outremont/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1100")
+        ('plateau',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/plateau/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1100"),
+        ('outremont',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/outremont/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1100")
 ]
+
+dealbreakers = ['swap','echange','recherche','sublet','sous-location','cdn']
 
 class Apts:
   def __init__(self,title, price, url,ad_id,postalcode):
@@ -24,9 +26,8 @@ class Apts:
 
     def html(self):
         html_data = ''
-        html_data += '<h2>' + self.title + '</h2>'
+        html_data += '<a href=' + self.url + '>' +self.tltle + '</a>' 
         html_data += '<h4>' + self.price + '</h4>'
-        html_data += '<a href=' + self.url + '></a>' 
         return html_data
 
 def check_if_new_apts(urls):
@@ -34,7 +35,7 @@ def check_if_new_apts(urls):
 
     for url in urls:
         quartier = url[0]
-        print('looking for :', quartier)
+        print('On regarde dans :', quartier)
         response = requests.get(url[1])
         soup = BeautifulSoup(response.text, "html.parser")
         divs = soup.findAll('div')
@@ -53,7 +54,6 @@ def check_if_new_apts(urls):
                 url = "http://www.kijiji.ca" + div.find('a')['href']
                 ad_id = url.split('/')[-1]
                 if ad_id in last_known_id:
-                    print('last apt has been seen,sorry')
                     break
                 try:
                     #TODO ca donne une list
@@ -61,23 +61,25 @@ def check_if_new_apts(urls):
                     postalcode = re.findall('[A-Za-z][1-9][A-Za-z]\s?[1-9][A-Za-z][1-9]',postalcode_raw)
                 except:
                     postalcode = 'unknown'
-                apt = Apts(title,price,url,ad_id,postalcode)
-                apts.append(apt)
+                
+                if any(x in title.lower() for x in dealbreakers):
+                    pass
+                else:
+                    apt = Apts(title,price,url,ad_id,postalcode)
+                    apts.append(apt)
 
         
-        print('done for: ', quartier)
+        print('Done : ', quartier)
         if len(apts) > 1:
-            print('writing to file:', quartier)
             with open(quartier,'w') as f:
                 try:
                     f.write(apts[0].ad_id + '\n')
                 except IOError:
                     print("Could not read file:", quartier)
-            print('done writing')
-
+            print('Il y a ' + str(len(apts)) + ' apts dans ' + quartier)
             all_apts[quartier] = apts
         else:
-            print('nothin new has been found in ',quartier)
+            print('Rien de nouveau dans ',quartier)
     return all_apts
 
 def format_html(apts):
@@ -85,9 +87,8 @@ def format_html(apts):
     for quartier in apts:
         html += '<h2>' + quartier + '</h2>'
         for apt in apts[quartier]:
-            html += '<p>' + apt.title + '</p>'
+            html += '<a href=' + apt.url + '>' + apt.title + '</a>'
             html += '<p>' + apt.price + '</p>'
-            html += '<a href=' + apt.url + '></a>'
     html += "</html>"
     return html
 
@@ -101,17 +102,13 @@ def send_email(html):
     message["From"] = me
     message["To"] = you
 
-    text = "oops, erreur avec le html"
-
     # Turn these into plain/html MIMEText objects
-    part1 = MIMEText(text, "plain")
-    part2 = MIMEText(html, "html")
+    part2 = MIMEText(html, "html", 'utf-8')
 
     # Add HTML/plain-text parts to MIMEMultipart message
     # The email client will try to render the last part first
-    message.attach(part1)
     message.attach(part2)
-
+    
     try:  
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.ehlo()
@@ -123,6 +120,7 @@ def send_email(html):
     except Exception as e:  
         print('Something went wrong...', e)
 if __name__ == "__main__":
+    print(datetime.datetime.now())
     apts = check_if_new_apts(urls)
     if apts:
         apts_html = format_html(apts)
