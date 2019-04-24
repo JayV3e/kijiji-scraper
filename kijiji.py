@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-import re
+import re,os
 
 import smtplib, ssl
 from email.mime.text import MIMEText
@@ -92,7 +92,7 @@ def format_html(apts):
 def send_email(html):
     me = "recherche.kijiji.mautadine@gmail.com"
     you = "jerome.verdoni@gmail.com"
-    password = ''
+    password = os.environ['KIJIJI_PASSWORD']
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "Des nouvelles annonces kijiji sont sorties"
