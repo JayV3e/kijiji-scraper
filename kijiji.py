@@ -94,7 +94,7 @@ def format_html(apts):
 
 def send_email(html):
     me = "recherche.kijiji.mautadine@gmail.com"
-    you = "jerome.verdoni@gmail.com"
+    you = ["jerome.verdoni@gmail.com","perreaultmj@hotmail.com"]
     password = os.environ['KIJIJI_PASSWORD']
 
     message = MIMEMultipart("alternative")
