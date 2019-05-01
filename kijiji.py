@@ -133,7 +133,7 @@ def send_email(html):
     except Exception as e:  
         print('Something went wrong...', e)
 if __name__ == "__main__":
-    print('Debut du script a : ' + str(datetime.datetime.now())
+    print('Debut du script a : ' + str(datetime.datetime.now()))
     apts = check_if_new_apts(urls)
     if apts:
         print('Sending email...')
@@ -141,5 +141,5 @@ if __name__ == "__main__":
         send_email(apts_html)
     else:
         print('Rien de nouveau a envoyer')
-    print('Fin du script a : ' + str(datetime.datetime.now())
+    print('Fin du script a : ' + str(datetime.datetime.now()))
 
