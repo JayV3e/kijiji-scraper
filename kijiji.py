@@ -42,7 +42,6 @@ def check_if_new_apts(urls):
         with open(path,'r') as f:
             for x in f:
                 seen_apts.append(x)
-        print(seen_apts)
 
         response = requests.get(url[1])
         soup = BeautifulSoup(response.text, "html.parser")
