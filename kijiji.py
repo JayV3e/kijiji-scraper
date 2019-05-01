@@ -61,6 +61,7 @@ def check_if_new_apts(urls):
                     if ad_id in seen_apts:
                         pass
                     with open(path,'r+') as f:
+                        print('ajoute :' + ad_id + 'a '+path)
                         f.write(ad_id + '\n')
 
                     title = div.findAll('div',class_="title")[0].text
@@ -81,7 +82,7 @@ def check_if_new_apts(urls):
 
         print('Done : ', quartier)
         if len(new_apts) > 1:
-            print('Il y a ' + str(len(apts)) + ' apts dans ' + quartier)
+            print('Il y a ' + str(len(new_apts)) + ' apts dans ' + quartier)
             all_apts[quartier] = apts
         else:
             print('Rien de nouveau dans ',quartier)
