@@ -59,9 +59,8 @@ def check_if_new_apts(urls):
                 ad_id = url.split('/')[-1]
                 if ad_id in seen_apts:
                     pass
-                with open(path,'w') as f:
-                    seen_apts.append(x)
-                f.write(ad_id + '\n')
+                with open(path,'rw') as f:
+                    f.write(ad_id + '\n')
 
                 title = div.findAll('div',class_="title")[0].text
                 price = div.findAll('div',class_="price")[0].text
