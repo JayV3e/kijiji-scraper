@@ -132,4 +132,6 @@ if __name__ == "__main__":
         print('Sending email...')
         apts_html = format_html(apts)
         send_email(apts_html)
+    else:
+        print('Rien de nouveau a envoyer')
 
