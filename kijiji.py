@@ -30,9 +30,39 @@ class Apts:
         html_data += '<h4>' + self.price + '</h4>'
         return html_data
 
+def get_apt_details(div):
+    url = "http://www.kijiji.ca" + div.find('a')['href']
+    ad_id = url.split('/')[-1] + '\n'
+    title = div.findAll('div',class_="title")[0].text
+    price = div.findAll('div',class_="price")[0].text
+    try:
+        #TODO ca donne une list
+        postalcode_raw = BeautifulSoup(requests.get(url).text, "html.parser").findAll('span',{'itemprop': 'address'})[0].text
+        postalcode = re.findall('[A-Za-z][1-9][A-Za-z]\s?[1-9][A-Za-z][1-9]',postalcode_raw)
+    except:
+        postalcode = 'unknown'
+    return Apts(title, price, url,ad_id,postalcode)
+
+def get_list_of_apts(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    divs = soup.findAll('div')
+    return reversed(divs)
+
+def apt_is_wanted(apt,seen_apts):
+    if apt.ad_id in seen_apts:
+        print('apt :' + apt.ad_id + ' has been seen')
+        return False
+    if any(x in apt.title.lower() for x in dealbreakers):
+        print('apt :' + apt.ad_id + ' contains dealbreaker')
+        return False
+    return True
+    
+
 def check_if_new_apts(urls):
     all_apts = {}
-    path_root = '/root/kijiji/'
+    path_root = '/Users/jerome/Desktop/kijiji/'
+    #path_root = '/root/kijiji/'
     for url in urls:
         quartier = url[0]
         print('On regarde dans :', quartier)
@@ -42,48 +72,26 @@ def check_if_new_apts(urls):
         with open(path,'r') as f:
             for x in f:
                 seen_apts.append(x)
-
-        response = requests.get(url[1])
-        soup = BeautifulSoup(response.text, "html.parser")
-        divs = soup.findAll('div')
-        
+        print('Il y a deja ' + str(len(seen_apts)) + ' dans ' + quartier)
+        divs = get_list_of_apts(url[1])
         new_apts = []
-
-        for div in reversed(divs):
+        for div in divs:
             if div.has_attr('data-ad-id'):
-                #skip les pubs
-                if div.findAll('span',class_='v_ w_'):
-                    pass
-                url = "http://www.kijiji.ca" + div.find('a')['href']
-                ad_id = url.split('/')[-1] + '\n'
-                if ad_id in seen_apts:
+                apt = get_apt_details(div)
+                if not apt_is_wanted(apt,seen_apts):
                     continue
-                with open(path,'a') as f:
-                    f.write(ad_id)
-
-                title = div.findAll('div',class_="title")[0].text
-                price = div.findAll('div',class_="price")[0].text
-
-                try:
-                    #TODO ca donne une list
-                    postalcode_raw = BeautifulSoup(requests.get(url).text, "html.parser").findAll('span',{'itemprop': 'address'})[0].text
-                    postalcode = re.findall('[A-Za-z][1-9][A-Za-z]\s?[1-9][A-Za-z][1-9]',postalcode_raw)
-                except:
-                    postalcode = 'unknown'
                 
-                if any(x in title.lower() for x in dealbreakers):
-                    pass
-                else:
-                    apt = Apts(title,price,url,ad_id,postalcode)
-                    new_apts.append(apt)
+                with open(path,'a') as f:
+                    f.write(apt.ad_id)
 
+                new_apts.append(apt)
         print('Done : ', quartier)
+
         if len(new_apts) > 1:
-            print('Il y a ' + str(len(new_apts)) + ' apts dans ' + quartier)
+            print('Il y a maintenant ' + str(len(new_apts)) + ' apts dans ' + quartier)
             all_apts[quartier] = new_apts
         else:
             print('Rien de nouveau dans ',quartier)
-        f.close()
     return all_apts
 
 def format_html(apts):
