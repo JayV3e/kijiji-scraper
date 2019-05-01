@@ -61,8 +61,8 @@ def apt_is_wanted(apt,seen_apts):
 
 def check_if_new_apts(urls):
     all_apts = {}
-    path_root = '/Users/jerome/Desktop/kijiji/'
-    #path_root = '/root/kijiji/'
+    #path_root = '/Users/jerome/Desktop/kijiji/'
+    path_root = '/root/kijiji/'
     for url in urls:
         quartier = url[0]
         print('On regarde dans :', quartier)
@@ -133,7 +133,7 @@ def send_email(html):
     except Exception as e:  
         print('Something went wrong...', e)
 if __name__ == "__main__":
-    print(datetime.datetime.now())
+    print('Debut du script a : ' + datetime.datetime.now())
     apts = check_if_new_apts(urls)
     if apts:
         print('Sending email...')
@@ -141,4 +141,5 @@ if __name__ == "__main__":
         send_email(apts_html)
     else:
         print('Rien de nouveau a envoyer')
+    print('Fin du script a : ' + datetime.datetime.now())
 
