@@ -40,9 +40,9 @@ def check_if_new_apts(urls):
         
         path = path_root + quartier
         seen_apts = []
-        with open(path,'r') as f:
-            for x in f:
-                seen_apts.append(x)
+        f = open(path,'a+')
+        for x in f:
+            seen_apts.append(x)
 
         response = requests.get(url[1])
         soup = BeautifulSoup(response.text, "html.parser")
@@ -60,9 +60,9 @@ def check_if_new_apts(urls):
                     ad_id = url.split('/')[-1]
                     if ad_id in seen_apts:
                         pass
-                    with open(path,'r+') as f:
-                        print('ajoute :' + ad_id + 'a '+path)
-                        f.write(ad_id + '\n')
+
+                    print('ajoute :' + ad_id + 'a '+path)
+                    f.write(ad_id + '\n')
 
                     title = div.findAll('div',class_="title")[0].text
                     price = div.findAll('div',class_="price")[0].text
@@ -83,9 +83,10 @@ def check_if_new_apts(urls):
         print('Done : ', quartier)
         if len(new_apts) > 1:
             print('Il y a ' + str(len(new_apts)) + ' apts dans ' + quartier)
-            all_apts[quartier] = apts
+            all_apts[quartier] = new_apts
         else:
             print('Rien de nouveau dans ',quartier)
+        f.close()
     return all_apts
 
 def format_html(apts):
