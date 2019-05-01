@@ -14,7 +14,7 @@ urls = [('mile-end',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/mi
         ('outremont',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/outremont/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1100")
 ]
 
-dealbreakers = ['swap','echange','recherche','sublet','sous-location','cdn']
+dealbreakers = ['swap','echange','recherche','sublet','sous-location']
 
 class Apts:
   def __init__(self,title, price, url,ad_id,postalcode):
@@ -37,26 +37,34 @@ def check_if_new_apts(urls):
     for url in urls:
         quartier = url[0]
         print('On regarde dans :', quartier)
+        
+        path = path_root + quartier
+        seen_apts = []
+        with open(path,'rw') as f:
+            for x in f:
+                seen_apts.append(x)
+
         response = requests.get(url[1])
         soup = BeautifulSoup(response.text, "html.parser")
         divs = soup.findAll('div')
-        apts = []
-        path = path_root + quartier
-        with open(path,'r') as f:
-            last_known_id = f.readlines()[-1][:-1]
-        print('last known :',last_known_id)
+        
+        new_apts = []
+
         for div in reversed(divs):
             if div.has_attr('data-ad-id'):
                 #skip les pubs
                 if div.findAll('span',class_='v_ w_'):
                     pass
-                title = div.findAll('div',class_="title")[0].text
-                price = div.findAll('div',class_="price")[0].text
                 url = "http://www.kijiji.ca" + div.find('a')['href']
                 ad_id = url.split('/')[-1]
-                print(ad_id)
-                if ad_id in last_known_id:
+                if ad_id in seen_apts:
                     pass
+                
+                f.write(ad_id + '\n')
+
+                title = div.findAll('div',class_="title")[0].text
+                price = div.findAll('div',class_="price")[0].text
+
                 try:
                     #TODO ca donne une list
                     postalcode_raw = BeautifulSoup(requests.get(url).text, "html.parser").findAll('span',{'itemprop': 'address'})[0].text
@@ -68,16 +76,10 @@ def check_if_new_apts(urls):
                     pass
                 else:
                     apt = Apts(title,price,url,ad_id,postalcode)
-                    apts.append(apt)
+                    new_apts.append(apt)
 
-        
         print('Done : ', quartier)
-        if len(apts) > 1:
-            with open(path,'w') as f:
-                try:
-                    f.write(apts[0].ad_id + '\n')
-                except IOError:
-                    print("Could not read file:", quartier)
+        if len(new_apts) > 1:
             print('Il y a ' + str(len(apts)) + ' apts dans ' + quartier)
             all_apts[quartier] = apts
         else:
@@ -128,6 +130,7 @@ if __name__ == "__main__":
     if apts:
         print('theres apts')
         apts_html = format_html(apts)
+        print
         print(apts_html)
         send_email(apts_html)
         print('after email')
