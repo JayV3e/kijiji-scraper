@@ -32,8 +32,7 @@ class Apts:
 
 def check_if_new_apts(urls):
     all_apts = {}
-    #path_root ='/root/kijiji/'
-    path_root = '/Users/jerome/Desktop/kijiji/'
+    path_root = '/root/kijiji/'
     for url in urls:
         quartier = url[0]
         print('On regarde dans :', quartier)
@@ -43,6 +42,7 @@ def check_if_new_apts(urls):
         with open(path,'r') as f:
             for x in f:
                 seen_apts.append(x)
+        print(seen_apts)
 
         response = requests.get(url[1])
         soup = BeautifulSoup(response.text, "html.parser")
@@ -56,15 +56,11 @@ def check_if_new_apts(urls):
                 if div.findAll('span',class_='v_ w_'):
                     pass
                 url = "http://www.kijiji.ca" + div.find('a')['href']
-                ad_id = url.split('/')[-1]
+                ad_id = url.split('/')[-1] + '\n'
                 if ad_id in seen_apts:
-                    pass
+                    continue
                 with open(path,'a') as f:
-                    print(path)
-                    print(ad_id)
-                    print(f)
-                    print(f.write(ad_id + '\n'))
-                    f.write(ad_id + '\n')
+                    f.write(ad_id)
 
                 title = div.findAll('div',class_="title")[0].text
                 price = div.findAll('div',class_="price")[0].text
@@ -103,7 +99,8 @@ def format_html(apts):
 
 def send_email(html):
     me = "recherche.kijiji.mautadine@gmail.com"
-    you = ["jerome.verdoni@gmail.com","perreaultmj@hotmail.com"]
+    #you = ["jerome.verdoni@gmail.com","perreaultmj@hotmail.com"]
+    you = ["jerome.verdoni@gmail.com"]
     password = os.environ['KIJIJI_PASSWORD']
 
     message = MIMEMultipart("alternative")
@@ -131,12 +128,8 @@ def send_email(html):
 if __name__ == "__main__":
     print(datetime.datetime.now())
     apts = check_if_new_apts(urls)
-    print(apts)
     if apts:
-        print('theres apts')
+        print('Sending email...')
         apts_html = format_html(apts)
-        print
-        print(apts_html)
         send_email(apts_html)
-        print('after email')
 
