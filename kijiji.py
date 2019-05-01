@@ -32,7 +32,7 @@ class Apts:
 
 def check_if_new_apts(urls):
     all_apts = {}
-    path_root ='/Users/jerome/Desktop/kijiji/'
+    path_root ='/root/kijiji/'
 
     for url in urls:
         quartier = url[0]
@@ -60,8 +60,6 @@ def check_if_new_apts(urls):
                 if ad_id in seen_apts:
                     pass
 
-                print('ajoute :' + ad_id + 'a '+path)
-                print(f)
                 f.write(ad_id + '\n')
 
                 title = div.findAll('div',class_="title")[0].text
