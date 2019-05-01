@@ -32,7 +32,7 @@ class Apts:
 
 def check_if_new_apts(urls):
     all_apts = {}
-    path_root ='/root/kijiji/'
+    path_root ='/Users/jerome/Desktop/kijiji/'
 
     for url in urls:
         quartier = url[0]
@@ -52,33 +52,33 @@ def check_if_new_apts(urls):
 
         for div in reversed(divs):
             if div.has_attr('data-ad-id'):
-                with open(path) as f:
-                    #skip les pubs
-                    if div.findAll('span',class_='v_ w_'):
-                        pass
-                    url = "http://www.kijiji.ca" + div.find('a')['href']
-                    ad_id = url.split('/')[-1]
-                    if ad_id in seen_apts:
-                        pass
+                #skip les pubs
+                if div.findAll('span',class_='v_ w_'):
+                    pass
+                url = "http://www.kijiji.ca" + div.find('a')['href']
+                ad_id = url.split('/')[-1]
+                if ad_id in seen_apts:
+                    pass
 
-                    print('ajoute :' + ad_id + 'a '+path)
-                    f.write(ad_id + '\n')
+                print('ajoute :' + ad_id + 'a '+path)
+                print(f)
+                f.write(ad_id + '\n')
 
-                    title = div.findAll('div',class_="title")[0].text
-                    price = div.findAll('div',class_="price")[0].text
+                title = div.findAll('div',class_="title")[0].text
+                price = div.findAll('div',class_="price")[0].text
 
-                    try:
-                        #TODO ca donne une list
-                        postalcode_raw = BeautifulSoup(requests.get(url).text, "html.parser").findAll('span',{'itemprop': 'address'})[0].text
-                        postalcode = re.findall('[A-Za-z][1-9][A-Za-z]\s?[1-9][A-Za-z][1-9]',postalcode_raw)
-                    except:
-                        postalcode = 'unknown'
-                    
-                    if any(x in title.lower() for x in dealbreakers):
-                        pass
-                    else:
-                        apt = Apts(title,price,url,ad_id,postalcode)
-                        new_apts.append(apt)
+                try:
+                    #TODO ca donne une list
+                    postalcode_raw = BeautifulSoup(requests.get(url).text, "html.parser").findAll('span',{'itemprop': 'address'})[0].text
+                    postalcode = re.findall('[A-Za-z][1-9][A-Za-z]\s?[1-9][A-Za-z][1-9]',postalcode_raw)
+                except:
+                    postalcode = 'unknown'
+                
+                if any(x in title.lower() for x in dealbreakers):
+                    pass
+                else:
+                    apt = Apts(title,price,url,ad_id,postalcode)
+                    new_apts.append(apt)
 
         print('Done : ', quartier)
         if len(new_apts) > 1:
