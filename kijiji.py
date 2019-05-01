@@ -32,17 +32,17 @@ class Apts:
 
 def check_if_new_apts(urls):
     all_apts = {}
-    path_root ='/root/kijiji/'
-
+    #path_root ='/root/kijiji/'
+    path_root = '/Users/jerome/Desktop/kijiji/'
     for url in urls:
         quartier = url[0]
         print('On regarde dans :', quartier)
         
         path = path_root + quartier
         seen_apts = []
-        f = open(path,'a+')
-        for x in f:
-            seen_apts.append(x)
+        with open(path,'r') as f:
+            for x in f:
+                seen_apts.append(x)
 
         response = requests.get(url[1])
         soup = BeautifulSoup(response.text, "html.parser")
@@ -59,8 +59,8 @@ def check_if_new_apts(urls):
                 ad_id = url.split('/')[-1]
                 if ad_id in seen_apts:
                     pass
-
-                f.write(ad_id + '\n')
+                with open(path,'a+') as f:
+                    f.write(ad_id + '\n')
 
                 title = div.findAll('div',class_="title")[0].text
                 price = div.findAll('div',class_="price")[0].text
@@ -99,7 +99,7 @@ def format_html(apts):
 
 def send_email(html):
     me = "recherche.kijiji.mautadine@gmail.com"
-    #you = ["jerome.verdoni@gmail.com","perreaultmj@hotmail.com"]
+    you = ["jerome.verdoni@gmail.com","perreaultmj@hotmail.com"]
     password = os.environ['KIJIJI_PASSWORD']
 
     message = MIMEMultipart("alternative")
