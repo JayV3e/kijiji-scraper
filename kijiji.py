@@ -1,7 +1,7 @@
 # encoding=utf8
 import requests
 from bs4 import BeautifulSoup
-import re,os
+import re,os,json
 
 import smtplib, ssl
 from email.mime.text import MIMEText
@@ -9,7 +9,7 @@ from email.mime.multipart import MIMEMultipart
 
 import datetime
 
-urls = [('mile-end',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/mile-end/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1100"),
+urls = [('mile-end',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/mile-end/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__2100"),
         ('plateau',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/plateau/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1100"),
         ('outremont',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/outremont/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1100")
 ]
@@ -29,6 +29,18 @@ class Apts:
         html_data += '<a href=' + self.url + '>' +self.tltle + '</a>' 
         html_data += '<h4>' + self.price + '</h4>'
         return html_data
+    
+def get_walking_distance(postalcode):
+    if postalcode =='unknown':
+        return 'inconnu'
+    url = 'https://maps.googleapis.com/maps/api/distancematrix/json?mode=walking&origins=' + postalcode + '&destinations=h2v3r6&key=' + os.environ['GOOGLE_API_KEY']
+    r = requests.get(url)
+    r = json.loads(r)
+    if r['status'] == 'OK':
+        return r['rows']['elements']['duration']['text']
+    else:
+        return 'erreur lors du calcul'
+
 
 def get_apt_details(div):
     url = "http://www.kijiji.ca" + div.find('a')['href']
@@ -38,7 +50,8 @@ def get_apt_details(div):
     try:
         #TODO ca donne une list
         postalcode_raw = BeautifulSoup(requests.get(url).text, "html.parser").findAll('span',{'itemprop': 'address'})[0].text
-        postalcode = re.findall('[A-Za-z][1-9][A-Za-z]\s?[1-9][A-Za-z][1-9]',postalcode_raw)
+        postalcode = re.findall('[A-Za-z][1-9][A-Za-z]\s?[1-9][A-Za-z][1-9]',postalcode_raw)[0]
+        print(postalcode)
     except:
         postalcode = 'unknown'
     return Apts(title, price, url,ad_id,postalcode)
@@ -57,12 +70,11 @@ def apt_is_wanted(apt,seen_apts):
         print('apt :' + apt.ad_id + ' contains dealbreaker')
         return False
     return True
-    
 
 def check_if_new_apts(urls):
     all_apts = {}
-    #path_root = '/Users/jerome/Desktop/kijiji/'
-    path_root = '/root/kijiji/'
+    path_root = '/Users/jerome/Desktop/kijiji/'
+    #path_root = '/root/kijiji/'
     for url in urls:
         quartier = url[0]
         print('On regarde dans :', quartier)
@@ -84,6 +96,8 @@ def check_if_new_apts(urls):
                 with open(path,'a') as f:
                     f.write(apt.ad_id)
 
+                apt.distance = get_walking_distance(apt.postalcode)
+
                 new_apts.append(apt)
         print('Done : ', quartier)
 
@@ -101,7 +115,9 @@ def format_html(apts):
         for apt in apts[quartier]:
             html += '<a href=' + apt.url + '>' + apt.title + '</a>'
             html += '<p>' + apt.price + '</p>'
+            html += '<p>' + apt.distance + '</p>'
     html += "</html>"
+    print(html)
     return html
 
 def send_email(html):
@@ -142,4 +158,6 @@ if __name__ == "__main__":
     else:
         print('Rien de nouveau a envoyer')
     print('Fin du script a : ' + str(datetime.datetime.now()))
+    print('-=-=-=-=-=-=-')
+    print('\n')
 
