@@ -9,9 +9,9 @@ from email.mime.multipart import MIMEMultipart
 
 import datetime
 
-urls = [('mile-end',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/mile-end/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1500"),
+urls = [#('mile-end',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/mile-end/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1500"),
         ('plateau',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/plateau/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1500"),
-        ('outremont',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/outremont/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1500")
+        #('outremont',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/outremont/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1500")
 ]
 
 dealbreakers = ['swap','echange','recherche','sublet','sous-location']
@@ -39,6 +39,8 @@ def get_walking_distance(postalcode):
     if r['status'] == 'OK':
         return r['rows'][0]["elements"][0]["duration"]['text']
     else:
+        print(postalcode)
+        print(r.text)
         return 'erreur lors du calcul'
 
 
@@ -51,7 +53,6 @@ def get_apt_details(div):
         #TODO ca donne une list
         postalcode_raw = BeautifulSoup(requests.get(url).text, "html.parser").findAll('span',{'itemprop': 'address'})[0].text
         postalcode = re.findall('[A-Za-z][1-9][A-Za-z]\s?[1-9][A-Za-z][1-9]',postalcode_raw)[0]
-        print(postalcode)
     except:
         postalcode = 'unknown'
     return Apts(title, price, url,ad_id,postalcode)
@@ -64,10 +65,8 @@ def get_list_of_apts(url):
 
 def apt_is_wanted(apt,seen_apts):
     if apt.ad_id in seen_apts:
-        print('apt :' + apt.ad_id + ' has been seen')
         return False
     if any(x in apt.title.lower() for x in dealbreakers):
-        print('apt :' + apt.ad_id + ' contains dealbreaker')
         return False
     return True
 
