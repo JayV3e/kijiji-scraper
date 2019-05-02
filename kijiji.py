@@ -9,9 +9,9 @@ from email.mime.multipart import MIMEMultipart
 
 import datetime
 
-urls = [#('mile-end',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/mile-end/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1500"),
+urls = [('mile-end',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/mile-end/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1500"),
         ('plateau',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/plateau/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1500"),
-        #('outremont',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/outremont/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1500")
+        ('outremont',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/outremont/3+1+2__4+1+2__5+1+2/k0c37l80002a27949001?ad=offering&price=__1500")
 ]
 
 dealbreakers = ['swap','echange','recherche','sublet','sous-location']
@@ -116,7 +116,6 @@ def format_html(apts):
             html += '<p>' + apt.price + '</p>'
             html += '<p>' + apt.distance + '</p>'
     html += "</html>"
-    print(html)
     return html
 
 def send_email(html):
