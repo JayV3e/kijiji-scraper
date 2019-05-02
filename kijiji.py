@@ -72,8 +72,8 @@ def apt_is_wanted(apt,seen_apts):
 
 def check_if_new_apts(urls):
     all_apts = {}
-    path_root = '/Users/jerome/Desktop/kijiji/'
-    #path_root = '/root/kijiji/'
+    #path_root = '/Users/jerome/Desktop/kijiji/'
+    path_root = '/root/kijiji/'
     for url in urls:
         quartier = url[0]
         print('On regarde dans :', quartier)
