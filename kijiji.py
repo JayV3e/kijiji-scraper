@@ -35,9 +35,9 @@ def get_walking_distance(postalcode):
         return 'inconnu'
     url = 'https://maps.googleapis.com/maps/api/distancematrix/json?mode=walking&origins=' + postalcode + '&destinations=h2v3r6&key=' + os.environ['GOOGLE_API_KEY']
     r = requests.get(url)
-    r = json.loads(r)
+    r = json.loads(r.text)
     if r['status'] == 'OK':
-        return r['rows']['elements']['duration']['text']
+        return r['rows'][0]["elements"][0]["duration"]['text']
     else:
         return 'erreur lors du calcul'
 
