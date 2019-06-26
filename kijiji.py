@@ -9,9 +9,9 @@ from email.mime.multipart import MIMEMultipart
 
 import datetime
 
-urls = [('mile-end',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/mile-end/k0c37l80002a27949001?ad=offering&price=__1500"),
-        ('plateau',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/plateau/k0c37l80002a27949001?ad=offering&price=__1500"),
-        ('outremont',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/outremont/k0c37l80002a27949001?ad=offering&price=__1500")
+urls = [('mile-end',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/mile-end/k0c37l80002a27949001?ad=offering&price=__1900"),
+        ('plateau',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/plateau/k0c37l80002a27949001?ad=offering&price=__1900"),
+        ('outremont',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/outremont/k0c37l80002a27949001?ad=offering&price=__1900")
 ]
 
 dealbreakers = ['swap','echange','recherche','sublet','sous-location']
@@ -30,18 +30,18 @@ class Apts:
         html_data += '<h4>' + self.price + '</h4>'
         return html_data
     
-def send_sms(username,password):
-    to_number = os.environ['PHONE']
-    try:  
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.ehlo()
-        server.login(username, password)
-        server.sendmail(username, to_number, 'nouveaux apts disponibles')
-        server.close()
+# def send_sms(username,password):
+#     to_number = os.environ['PHONE']
+#     try:  
+#         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+#         server.ehlo()
+#         server.login(username, password)
+#         server.sendmail(username, to_number, 'nouveaux apts disponibles')
+#         server.close()
 
-        print('sms sent!')
-    except Exception as e:  
-        print('Something went wrong...', e)
+#         print('sms sent!')
+#     except Exception as e:  
+#         print('Something went wrong...', e)
 def get_walking_distance(postalcode):
     if postalcode =='unknown':
         return 'inconnu'
@@ -84,8 +84,8 @@ def apt_is_wanted(apt,seen_apts):
 
 def check_if_new_apts(urls):
     all_apts = {}
-    path_root = '/Users/jerome/Desktop/kijiji/'
-    #path_root = '/root/kijiji/'
+    #path_root = '/Users/jerome/Desktop/kijiji/'
+    path_root = '/root/kijiji/'
     for url in urls:
         quartier = url[0]
         print('On regarde dans :', quartier)
@@ -135,7 +135,7 @@ def send_email(html):
     #you = ["jerome.verdoni@gmail.com","perreaultmj@hotmail.com"]
     you = ["jerome.verdoni@gmail.com"]
     password = os.environ['KIJIJI_PASSWORD']
-    send_sms(me,password)
+    # send_sms(me,password)
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "Des nouvelles annonces kijiji sont sorties"
