@@ -10,7 +10,7 @@ from email.mime.multipart import MIMEMultipart
 import datetime
 
 urls = [('mile-end',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/mile-end/k0c37l80002a27949001?ad=offering&price=__1900"),
-        ('plateau',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/plateau/k0c37l80002a27949001?ad=offering&price=__1900"),
+        ('plateau',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/plateau/k0c37l80002a27949001?ad=offering&price=__1900")
         ('outremont',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/outremont/k0c37l80002a27949001?ad=offering&price=__1900")
 ]
 
@@ -67,12 +67,11 @@ def get_apt_details(div):
         postalcode = re.findall('[A-Za-z][1-9][A-Za-z]\s?[1-9][A-Za-z][1-9]',postalcode_raw)[0]
     except:
         postalcode = 'unknown'
+    apt.distance = get_walking_distance(apt.postalcode)
     return Apts(title, price, url,ad_id,postalcode)
 
 def get_list_of_apts(url):
     response = requests.get(url)
-    print(response.status_code)
-    print(response.text[:100])
     soup = BeautifulSoup(response.text, "html.parser")
     divs = soup.findAll('div')
     return reversed(divs)
@@ -83,6 +82,14 @@ def apt_is_wanted(apt,seen_apts):
     if any(x in apt.title.lower() for x in dealbreakers):
         return False
     return True
+
+def apt_is_close_enough(distance):
+    distance_max = 20
+    digit = distance.split()[0]
+    if digit.isdigit() and int(digit) > distance_max:
+      print('false')
+    else:
+      print ('true')
 
 def check_if_new_apts(urls):
     all_apts = {}
@@ -101,15 +108,19 @@ def check_if_new_apts(urls):
         divs = get_list_of_apts(url[1])
         new_apts = []
         for div in divs:
-            if div.has_attr('data-ad-id'):
+            if div.has_attr('data-listing-id'):
                 apt = get_apt_details(div)
+                
                 if not apt_is_wanted(apt,seen_apts):
+                    continue
+
+                if not apt_is_close_enough(apt.distance):
                     continue
                 
                 with open(path,'a') as f:
                     f.write(apt.ad_id)
 
-                apt.distance = get_walking_distance(apt.postalcode)
+                
 
                 new_apts.append(apt)
         print('Done : ', quartier)
