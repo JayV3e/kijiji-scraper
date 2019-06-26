@@ -10,7 +10,7 @@ from email.mime.multipart import MIMEMultipart
 import datetime
 
 urls = [('mile-end',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/mile-end/k0c37l80002a27949001?ad=offering&price=__1900"),
-        ('plateau',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/plateau/k0c37l80002a27949001?ad=offering&price=__1900")
+        ('plateau',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/plateau/k0c37l80002a27949001?ad=offering&price=__1900"),
         ('outremont',"https://www.kijiji.ca/b-appartement-condo/grand-montreal/outremont/k0c37l80002a27949001?ad=offering&price=__1900")
 ]
 
@@ -67,7 +67,7 @@ def get_apt_details(div):
         postalcode = re.findall('[A-Za-z][1-9][A-Za-z]\s?[1-9][A-Za-z][1-9]',postalcode_raw)[0]
     except:
         postalcode = 'unknown'
-    apt.distance = get_walking_distance(apt.postalcode)
+    
     return Apts(title, price, url,ad_id,postalcode)
 
 def get_list_of_apts(url):
@@ -110,6 +110,7 @@ def check_if_new_apts(urls):
         for div in divs:
             if div.has_attr('data-listing-id'):
                 apt = get_apt_details(div)
+                apt.distance = get_walking_distance(apt.postalcode)
                 
                 if not apt_is_wanted(apt,seen_apts):
                     continue
