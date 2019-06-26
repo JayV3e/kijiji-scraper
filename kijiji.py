@@ -72,7 +72,7 @@ def get_apt_details(div):
 def get_list_of_apts(url):
     response = requests.get(url)
     print(response.status_code)
-    print(response.body[:100])
+    print(response.text[:100])
     soup = BeautifulSoup(response.text, "html.parser")
     divs = soup.findAll('div')
     return reversed(divs)
