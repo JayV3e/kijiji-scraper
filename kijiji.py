@@ -87,9 +87,9 @@ def apt_is_close_enough(distance):
     distance_max = 20
     digit = distance.split()[0]
     if digit.isdigit() and int(digit) > distance_max:
-      print('false')
+      return False
     else:
-      print ('true')
+      return True
 
 def check_if_new_apts(urls):
     all_apts = {}
